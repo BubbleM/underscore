@@ -4,19 +4,29 @@
 //     2017-07-08 BubbleM 阅读源码　bubblelm@163.com
 
 (function () {
-  // Baseline setup
-  // --------------
+/*
+  整个函数在一个闭包中，避免污染全局变量．
+  通过传入this，即window对象来改变函数的作用域．和jQuery的自执行函数有异曲同工之妙
+  这种传入全局变量的方式一方面有利于代码阅读，另一方面方便压缩
+ */
 
   // Establish the root object, `window` in the browser, or `exports` on the server.
+  // 将 this 赋值给局部变量 root
   var root = this
 
-  // Save the previous value of the `_` variable.
+  // 将原来全局环境中的变量 `_` 赋值给变量 previousUnderscore 进行缓存
+  // 在后面的 noConflict 方法中有用到
   var previousUnderscore = root._
 
-  // Save bytes in the minified (but not gzipped) version:
+  // 原型赋值　便于压缩
+  /*
+    Object.prototype.xxx = ...  这种代码是不可压缩的，Object,prototype这些名字改了浏览器就不认得了。
+    建议凡是一段代码被使用两次以上都建议定义变量(函数)，有利于修改和压缩代码
+   */
   var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype
 
   // Create quick reference variables for speed access to core prototypes.
+  // 缓存变量，便于压缩；同时可减少在原型链中的查找次数(提高代码效率)
   var
     push = ArrayProto.push,
     slice = ArrayProto.slice,
@@ -35,8 +45,17 @@
   var Ctor = function () {}
 
   // Create a safe reference to the Underscore object for use below.
+  /*
+    核心函数
+    '_'其实是一个支持无new调用的构造函数
+    each等方法都在该构造函数的原型链上
+    _([1, 2, 3]).each(alert)　　_([1, 2, 3]) 相当于无 new 构造了一个新的对象
+   */
   var _ = function (obj) {
+    // 如果 obj 已经是 `_` 函数的实例，则直接返回 obj
     if (obj instanceof _) return obj
+    // 如果不是 `_` 函数的实例
+    // 则调用 new 运算符，返回实例化的对象
     if (!(this instanceof _)) return new _(obj)
     this._wrapped = obj
   }
@@ -44,6 +63,10 @@
   // Export the Underscore object for **Node.js**, with
   // backwards-compatibility for the old `require()` API. If we're in
   // the browser, add `_` as a global object.
+  /*
+    将上面定义的 `_` 局部变量赋值给全局对象中的 `_` 属性
+    这样暴露给全局后便可以在全局环境中使用 `_` 变量(方法)
+   */
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       exports = module.exports = _
