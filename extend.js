@@ -50,10 +50,21 @@ function nativeNth (a, index) {
   if ((index < 0) || (index > a.length - 1)) { fail('Index value is out of bounds') }
   return a[index]
 }
-console.log(nativeNth('letters', 1)) // e
-console.log(nativeNth({}, 2)) // Error: Not supported on non-indexed type
-console.log(nativeNth('letters', 2000)) // Error: Index value is out of bounds
+// console.log(nativeNth('letters', 1)) // e
+// console.log(nativeNth({}, 2)) // Error: Not supported on non-indexed type
+// console.log(nativeNth('letters', 2000)) // Error: Index value is out of bounds
+
+console.log([2, 3, -1, -6, 0, -108, 42, 10].sort())
+// (8) [-1, -108, -6, 0, 10, 2, 3, 42]
 /**
- *
- *
+  当有不同数据混合出现时，sort出现问题；
+  由于在没有给定参数的情况下，Array#sort方法执行字符串的比较
+  Array#sort需要一个比较器
  */
+function compareLessThanOrEqual (x, y) {
+  if (x < y) return -1
+  if (x > y) return 1
+  return 0
+}
+console.log([2, 3, -1, -6, 0, -108, 42, 10].sort(compareLessThanOrEqual))
+// (8) [-108, -6, -1, 0, 2, 3, 10, 42]
